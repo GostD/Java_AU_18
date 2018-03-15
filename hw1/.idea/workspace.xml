@@ -32,7 +32,7 @@
       <file leaf-file-name="Trie.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/Trie.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="368">
+            <state relative-caret-position="136">
               <caret line="16" column="45" lean-forward="false" selection-start-line="16" selection-start-column="45" selection-end-line="16" selection-end-column="45" />
               <folding />
             </state>
@@ -49,25 +49,25 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Bor.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Bor.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/Bor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="328">
-              <caret line="81" column="25" lean-forward="true" selection-start-line="81" selection-start-column="25" selection-end-line="81" selection-end-column="25" />
+            <state relative-caret-position="348">
+              <caret line="63" column="30" lean-forward="false" selection-start-line="63" selection-start-column="30" selection-end-line="63" selection-end-column="30" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#1835#1836#0" expanded="true" />
-                <element signature="e#1868#1869#0" expanded="true" />
+                <element signature="e#1866#1867#0" expanded="true" />
+                <element signature="e#1899#1900#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TrieImplTest.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="TrieImplTest.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/TrieImplTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1541">
-              <caret line="67" column="22" lean-forward="false" selection-start-line="67" selection-start-column="22" selection-end-line="67" selection-end-column="22" />
+            <state relative-caret-position="322">
+              <caret line="14" column="5" lean-forward="true" selection-start-line="14" selection-start-column="5" selection-end-line="14" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -94,8 +94,8 @@
       <list>
         <option value="$PROJECT_DIR$/src/main/java/Trie.java" />
         <option value="$PROJECT_DIR$/src/test/java/tests.java" />
-        <option value="$PROJECT_DIR$/src/test/java/TrieImplTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/Bor.java" />
+        <option value="$PROJECT_DIR$/src/test/java/TrieImplTest.java" />
       </list>
     </option>
   </component>
@@ -201,26 +201,6 @@
       <envs />
       <patterns />
     </configuration>
-    <configuration name="TrieImplTest.test3" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <module name="hw1" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="TrieImplTest" />
-      <option name="METHOD_NAME" value="test3" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <envs />
-      <patterns />
-    </configuration>
     <configuration name="TrieImplTest.test4" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="hw1" />
@@ -269,6 +249,26 @@
       <option name="PACKAGE_NAME" value="" />
       <option name="MAIN_CLASS_NAME" value="TrieImplTest" />
       <option name="METHOD_NAME" value="test6" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+    </configuration>
+    <configuration name="TrieImplTest.test7" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="hw1" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="TrieImplTest" />
+      <option name="METHOD_NAME" value="test7" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
@@ -364,18 +364,18 @@
     </configuration>
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="JUnit.TrieImplTest" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test3" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test4" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test5" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test6" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test4" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test5" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test6" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test7" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="JUnit.TrieImplTest" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test6" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test5" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test4" />
-        <item index="4" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test3" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test7" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test6" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test5" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.TrieImplTest.test4" />
       </list>
     </recent_temporary>
   </component>
@@ -402,11 +402,8 @@
     <history-entry file="TrieImplTest - 2018.03.15 at 20h 49m 23s.xml">
       <configuration name="TrieImplTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="TrieImplTest_test4 - 2018.03.15 at 20h 40m 00s.xml">
-      <configuration name="TrieImplTest.test4" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="TrieImplTest_test4 - 2018.03.15 at 20h 40m 17s.xml">
-      <configuration name="TrieImplTest.test4" configurationId="JUnit" />
+    <history-entry file="TrieImplTest - 2018.03.15 at 23h 05m 42s.xml">
+      <configuration name="TrieImplTest" configurationId="JUnit" />
     </history-entry>
     <history-entry file="TrieImplTest_test5 - 2018.03.15 at 20h 42m 00s.xml">
       <configuration name="TrieImplTest.test5" configurationId="JUnit" />
@@ -422,6 +419,9 @@
     </history-entry>
     <history-entry file="TrieImplTest_test6 - 2018.03.15 at 20h 45m 11s.xml">
       <configuration name="TrieImplTest.test6" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="TrieImplTest_test7 - 2018.03.15 at 23h 04m 27s.xml">
+      <configuration name="TrieImplTest.test7" configurationId="JUnit" />
     </history-entry>
   </component>
   <component name="ToolWindowManager">
@@ -484,14 +484,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/Trie.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="16" column="45" lean-forward="false" selection-start-line="16" selection-start-column="45" selection-end-line="16" selection-end-column="45" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hw1.iml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -500,24 +492,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/TrieImplTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/Trie.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1541">
-          <caret line="67" column="22" lean-forward="false" selection-start-line="67" selection-start-column="22" selection-end-line="67" selection-end-column="22" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state relative-caret-position="136">
+          <caret line="16" column="45" lean-forward="false" selection-start-line="16" selection-start-column="45" selection-end-line="16" selection-end-column="45" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/Bor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="81" column="25" lean-forward="true" selection-start-line="81" selection-start-column="25" selection-end-line="81" selection-end-column="25" />
+        <state relative-caret-position="348">
+          <caret line="63" column="30" lean-forward="false" selection-start-line="63" selection-start-column="30" selection-end-line="63" selection-end-column="30" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#1835#1836#0" expanded="true" />
-            <element signature="e#1868#1869#0" expanded="true" />
+            <element signature="e#1866#1867#0" expanded="true" />
+            <element signature="e#1899#1900#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/TrieImplTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="322">
+          <caret line="14" column="5" lean-forward="true" selection-start-line="14" selection-start-column="5" selection-end-line="14" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -67,5 +67,13 @@ public class TrieImplTest {
         assertEquals(1, bor.howManyStartsWithPrefix("as"));
         assertEquals(0, bor.howManyStartsWithPrefix("asf"));
     }
+    @Test
+    public void test7() {
+        Bor bor = new Bor();
+        assertTrue(bor.add("asf"));
+        assertTrue(bor.add("asfght"));
+        assertTrue(bor.remove("asf"));
+        assertFalse(bor.contains("asf"));
+    }
 }
 

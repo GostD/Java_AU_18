@@ -61,6 +61,7 @@ public class Bor implements Trie {
                 cur = temp;
                 i++;
             }
+            cur.isEnd = false;
             return true;
         }
         return false;
