@@ -3,8 +3,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Bor implements Trie, StreamSerializable {
-    private Node root;
-    Bor() {
+    final private Node root;
+    public Bor() {
         root = new Node();
         root.count = 0;
     }
@@ -35,14 +35,11 @@ public class Bor implements Trie, StreamSerializable {
 
     public boolean contains(String element) {
         Node cur = root;
-        int i = 0;
-        while (i < element.length()) {
-            Node temp = cur.edges.get(element.charAt(i));
-            if (temp == null) {
+        for (int i = 0; i < element.length(); i++) {
+            cur = cur.edges.get(element.charAt(i));
+            if (cur == null) {
                 return false;
             }
-            cur = temp;
-            i++;
         }
         return cur.isEnd;
     }
@@ -51,8 +48,7 @@ public class Bor implements Trie, StreamSerializable {
         if (contains(element)) {
             Node cur = root;
             root.count--;
-            int i = 0;
-            while (i < element.length()) {
+            for (int i = 0; i < element.length(); i++) {
                 Node temp = cur.edges.get(element.charAt(i));
                 if (temp.count > 1) temp.count--;
                 else {
@@ -60,7 +56,6 @@ public class Bor implements Trie, StreamSerializable {
                     return true;
                 }
                 cur = temp;
-                i++;
             }
             cur.isEnd = false;
             return true;
@@ -74,12 +69,9 @@ public class Bor implements Trie, StreamSerializable {
 
     public int howManyStartsWithPrefix(String prefix) {
         Node cur = root;
-        int i = 0;
-        while (i < prefix.length()) {
-            Node temp = cur.edges.get(prefix.charAt(i));
-            if (temp == null) return 0;
-            cur = temp;
-            i++;
+        for (int i = 0; i < prefix.length(); i++) {
+            cur = cur.edges.get(prefix.charAt(i));
+            if (cur == null) return 0;
         }
         return cur.count;
     }
@@ -95,13 +87,13 @@ public class Bor implements Trie, StreamSerializable {
     private class Node {
         private boolean isEnd;
         private int count;
-        private Map<Character, Node> edges;
-        Node() {
+        final private Map<Character, Node> edges;
+        private Node() {
             isEnd = false;
             count = 1;
             edges = new HashMap<Character, Node>();
         }
-        void serialize(OutputStream out) throws IOException {
+        private void serialize(OutputStream out) throws IOException {
             DataOutputStream dataOut = new DataOutputStream(out);
             dataOut.writeInt(count);
             dataOut.writeBoolean(isEnd);
@@ -111,11 +103,10 @@ public class Bor implements Trie, StreamSerializable {
             }
         }
 
-        void deserialize(InputStream in) throws IOException {
+        private void deserialize(InputStream in) throws IOException {
             DataInputStream dataIn = new DataInputStream(in);
             count = dataIn.readInt();
             isEnd = dataIn.readBoolean();
-//            edges = new HashMap<Character, Node>();
             if (!isEnd || count > 1) {
                 for (int i = isEnd ? 1 : 0; i < count;) {
                     char ch = dataIn.readChar();
