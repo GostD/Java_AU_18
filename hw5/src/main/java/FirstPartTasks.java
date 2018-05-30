@@ -86,7 +86,9 @@ public final class FirstPartTasks {
     // Вернуть строку, состояющую из конкатенаций переданного массива, и окруженную строками "<", ">"
     // см. тесты
     public static String joinTo(String... strings) {
-        return "<" + Arrays.stream(strings).reduce((s1, s2) -> s1 + ", " + s2).orElse("") + ">";
+        return Arrays.stream(strings)
+                .collect(Collectors.joining(", ", "<", ">"));
+//                reduce((s1, s2) -> s1 + ", " + s2).orElse("") ;
     }
 
     // Вернуть поток из объектов класса 'clazz'

@@ -4,10 +4,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SecondPartTasksTest {
 
@@ -27,7 +24,7 @@ public class SecondPartTasksTest {
             Assert.assertEquals(SecondPartTasks.findQuotes(Arrays.asList(tempFile1.getAbsolutePath(), tempFile2.getAbsolutePath()), "abcd")
                     , Arrays.asList("abcdabcd", "abcd"));
             Assert.assertEquals(SecondPartTasks.findQuotes(Arrays.asList(tempFile1.getAbsolutePath(), tempFile2.getAbsolutePath()), "efff")
-                    , Arrays.asList());
+                    , Collections.emptyList());
             Assert.assertEquals(SecondPartTasks.findQuotes(Arrays.asList(tempFile1.getAbsolutePath(), tempFile2.getAbsolutePath()), "")
                     , Arrays.asList("abcdabcd","effe","sssss","abcd"));
         } catch (IOException e) {
@@ -61,7 +58,7 @@ public class SecondPartTasksTest {
         order2.put("b", 3);
         order3.put("c", 3);
         Map<String, Integer> order_sum = new HashMap<>();
-        Assert.assertEquals(SecondPartTasks.calculateGlobalOrder(Arrays.asList()), order_sum);
+        Assert.assertEquals(SecondPartTasks.calculateGlobalOrder(Collections.emptyList()), order_sum);
         order_sum.put("a", 3);
         order_sum.put("b", 3);
         Assert.assertEquals(SecondPartTasks.calculateGlobalOrder(Arrays.asList(order1, order2)), order_sum);
