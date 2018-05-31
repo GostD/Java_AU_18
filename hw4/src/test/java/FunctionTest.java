@@ -6,6 +6,15 @@ import static junit.framework.TestCase.*;
 
 public class FunctionTest {
 
+    private class CheckBox {
+        private boolean fst = false;
+        private boolean snd = false;
+        void reset() {
+            fst = false;
+            snd = false;
+        }
+    }
+
     @Test
     public void funOneApply() {
         Function1<Integer, Integer> plusOne = a -> a + 1;
@@ -54,21 +63,76 @@ public class FunctionTest {
     }
 
     @Test
+    public void checkCheckBox() {
+        CheckBox cb = new CheckBox();
+        assertFalse(cb.fst);
+        assertFalse(cb.snd);
+        cb.fst = true;
+        cb.snd = true;
+        cb.reset();
+        assertFalse(cb.fst);
+        assertFalse(cb.snd);
+    }
+
+    @Test
     public void predAndTest() {
-        Predicate<Integer> positive = a -> a > 0;
-        Predicate<Integer> greaterThanTwo = a -> a > 2;
+        CheckBox cb = new CheckBox();
+
+        Predicate<Integer> positive = a -> {cb.fst = true; return a > 0;};
+        Predicate<Integer> greaterThanTwo = a -> {cb.snd = true; return a > 2;};
         assertTrue(positive.and(greaterThanTwo).apply(5));
+        assertTrue(cb.fst);
+        assertTrue(cb.snd);
+        cb.reset();
+
         assertFalse(positive.and(greaterThanTwo).apply(1));
+        assertTrue(cb.fst);
+        assertTrue(cb.snd);
+        cb.reset();
+
         assertFalse(positive.and(greaterThanTwo).apply(0));
+        assertTrue(cb.fst);
+        assertFalse(cb.snd);
+        cb.reset();
+
+        Predicate<Object> notNull = a -> {cb.snd = true; return a != null;};
+        assertFalse(Predicate.ALWAYS_TRUE.and(notNull).apply(null));
+        assertTrue(cb.snd);
+        cb.reset();
+
+        assertFalse(Predicate.ALWAYS_FALSE.and(notNull).apply(null));
+        assertFalse(cb.snd);
     }
 
     @Test
     public void predOrTest() {
-        Predicate<Integer> positive = a -> a > 0;
-        Predicate<Integer> greaterThanTwo = a -> a > 2;
+        CheckBox cb = new CheckBox();
+
+        Predicate<Integer> positive = a -> {cb.fst = true; return a > 0;};
+        Predicate<Integer> greaterThanTwo = a -> {cb.snd = true; return a > 2;};
+
         assertTrue(positive.or(greaterThanTwo).apply(5));
+        assertTrue(cb.fst);
+        assertFalse(cb.snd);
+        cb.reset();
+
         assertTrue(positive.or(greaterThanTwo).apply(1));
+        assertTrue(cb.fst);
+        assertFalse(cb.snd);
+        cb.reset();
+
         assertFalse(positive.or(greaterThanTwo).apply(0));
+        assertTrue(cb.fst);
+        assertTrue(cb.snd);
+        cb.reset();
+
+        Predicate<Object> notNull = a -> {cb.snd = true; return a != null;};
+        assertTrue(Predicate.ALWAYS_TRUE.or(notNull).apply(null));
+        assertFalse(cb.snd);
+        cb.reset();
+
+        assertFalse(Predicate.ALWAYS_FALSE.or(notNull).apply(null));
+        assertTrue(cb.snd);
     }
 
     @Test

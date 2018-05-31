@@ -15,6 +15,8 @@ public class CollectionsTest {
         base.add(3);
         assertEquals(Collections.map(a -> a + 1, base), Arrays.asList(2, 3, 4));
         assertEquals(Collections.map(a -> Integer.toString(a), base), Arrays.asList("1", "2", "3"));
+        Function1<Object, String> objToStr = Object::toString;
+        assertEquals(Collections.map(objToStr, base), Arrays.asList("1", "2", "3"));
     }
 
     @Test
@@ -40,6 +42,10 @@ public class CollectionsTest {
         assertEquals(2, (int)Collections.foldr((a, b) -> a - b, Arrays.asList(5,3,1), 1));
         assertEquals(5, (int)Collections.foldr((a, b) -> a, Arrays.asList(5,3,1), 1));
         assertEquals(0, (int)Collections.foldr((a, b) -> b, Arrays.asList(5,3,1), 0));
+        Function2<String, Integer, Integer> sii = (s, a) -> Integer.parseInt(s) + a;
+        assertEquals(18, (int)Collections.foldr(sii, Arrays.asList("1", "2", "13"), 2));
+        Function2<Integer, Object, String> ios = (i, o) -> i.toString() + o.toString();
+        assertEquals("11320", Collections.foldr(ios, Arrays.asList(1, 13, 2), "0"));
     }
 
     @Test
@@ -49,6 +55,10 @@ public class CollectionsTest {
         assertEquals(7, (int)Collections.foldl((a, b) -> b, Arrays.asList(5,3,7), 1));
         assertEquals((int)Collections.foldr((a, b) -> a + b, Arrays.asList(5,3,1), 7),
                 (int)Collections.foldl((a, b) -> a + b, Arrays.asList(5,3,1), 7));
+        Function2<String, Integer, Integer> sii = (s, a) -> Integer.parseInt(s) + a;
+        assertEquals(18, (int)Collections.foldr(sii, Arrays.asList("1", "2", "13"), 2));
+        Function2<Integer, Object, String> ios = (i, o) -> i.toString() + o.toString();
+        assertEquals("11320", Collections.foldr(ios, Arrays.asList(1, 13, 2), "0"));
     }
 
 }

@@ -37,7 +37,7 @@ public class Collections {
         return itFoldr(fun, a.iterator(), ini);
     }
 
-    public static <A, T> T itFoldr(Function2<? super A, ? super T, ? extends T> fun, Iterator<? extends A> it, T ini) {
+    private static <A, T> T itFoldr(Function2<? super A, ? super T, ? extends T> fun, Iterator<? extends A> it, T ini) {
         A cur = it.next();
         if (it.hasNext()) {
             return fun.apply(cur, itFoldr(fun, it, ini));
