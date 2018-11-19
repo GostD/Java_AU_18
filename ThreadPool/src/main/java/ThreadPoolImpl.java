@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 
 public class ThreadPoolImpl {
 
-    ThreadPoolImpl(int n) {
+    public ThreadPoolImpl(int n) {
         assert(n > 0);
         for(int i = 0; i < n; i++) {
             threads.add(new Thread(() -> {
@@ -40,14 +40,14 @@ public class ThreadPoolImpl {
         return future;
     }
 
-    void shutdown() throws InterruptedException {
+    public void shutdown() throws InterruptedException {
         for (Thread th : threads) {
             th.interrupt();
         }
     }
 
 
-    List<Thread> threads = new ArrayList<>();
-    Queue<LightFutureImpl> tasks = new LinkedList<>();
+    private List<Thread> threads = new ArrayList<>();
+    private Queue<LightFutureImpl> tasks = new LinkedList<>();
     
 }

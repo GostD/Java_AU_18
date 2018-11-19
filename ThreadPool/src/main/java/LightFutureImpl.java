@@ -24,7 +24,7 @@ public class LightFutureImpl<T> implements LightFuture<T> {
     public T get() throws LightExecutionException, InterruptedException {
         if (exception != null) throw new LightExecutionException();
         synchronized (this) {
-            while (!isCalulated) this.wait();
+            while (!isCalulated && exception == null) this.wait();
             if (exception != null) throw new LightExecutionException();
             return result;
         }
@@ -38,12 +38,13 @@ public class LightFutureImpl<T> implements LightFuture<T> {
                 isCalulated = true;
             } catch (Exception e) {
                 exception = e;
+                this.notify();
             }
         }
     }
 
     @Override
-    public <R> LightFuture<R> thenApply(Function<T, R> fun) {
+    public <R> LightFuture<R> thenApply(Function<? super T, R> fun) {
         final Exception[] exp = new Exception[1];
         LightFutureImpl<R> fut = new LightFutureImpl<>(() -> {
             T res = null;
@@ -67,5 +68,5 @@ public class LightFutureImpl<T> implements LightFuture<T> {
     private Supplier<T> supplier;
     private Exception exception;
     private boolean isCalulated;
-    Queue queue;
+    private Queue queue;
 }

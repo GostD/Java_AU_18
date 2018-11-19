@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import static java.lang.Thread.sleep;
 import static junit.framework.TestCase.*;
@@ -88,6 +89,33 @@ public class ThreadPoolImplTest {
         } catch (Exception e) {
             assertTrue(e instanceof LightExecutionException);
         }
+    }
+
+    @Test
+    public void thenApplyTest() throws InterruptedException {
+        ThreadPoolImpl thP = new ThreadPoolImpl(10);
+        List<LightFuture> futuresIn = new ArrayList<>();
+        List<LightFuture> futuresOut = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            futuresIn.add(thP.submit(() -> {
+                try {
+                    sleep(1);
+                } catch (InterruptedException e) {
+                    return 1;
+                }
+                return 1;}));
+        }
+        Function<Integer, Integer> fun = a -> a + 1;
+        for (int i = 0; i < futuresIn.size(); i++) {
+            futuresOut.add(futuresIn.get(i).thenApply(fun));
+        }
+        for (int i = 0; i < 200; i++) {
+            for (int j = 0; j < futuresOut.size(); j++) {
+                if (futuresOut.get(j).isReady()) assertFalse(!futuresIn.get(j).isReady() && futuresOut.get(j).isReady());
+            }
+            sleep(1);
+        }
+
     }
 
 }
