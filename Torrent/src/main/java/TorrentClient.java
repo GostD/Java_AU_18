@@ -16,7 +16,7 @@ public class TorrentClient {
     private ExecutorService threadPool;
     private FileSystem fileSystem;
 
-    TorrentClient(short port) {
+    TorrentClient(String serverAddress, short port) {
         this.port = port;
         try {
             servSc = new ServerSocket(port);
@@ -53,13 +53,13 @@ public class TorrentClient {
                 e.printStackTrace();
             }
         }
-        serverAddress = "localhost";
+        this.serverAddress = serverAddress;
         threadPool = Executors.newSingleThreadExecutor();
-        try {
-            update();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            update();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void close() {
@@ -91,7 +91,7 @@ public class TorrentClient {
                         }
                         String strReq = avaliableRequests.get(metByte - 1) + "Req";
                         Method met = TorrentClient.class.getDeclaredMethod(strReq, SocketInfo.class);
-                        met.invoke(TorrentClient.this, sInf);
+                        met.invoke(this, sInf);
                     } catch (IllegalAccessException | InvocationTargetException | IOException | NoSuchMethodException e) {
                         System.out.println("could not call request method");
                         e.printStackTrace();
@@ -115,7 +115,11 @@ public class TorrentClient {
             System.out.println("Total count: " + count + " files");
             System.out.println("Id      Name        Size");
             for (int i = 0; i < count; i++) {
-                System.out.println(sc.is.readInt() + " " + sc.is.readUTF() + " " + sc.is.readLong());
+                int id = sc.is.readInt();
+                String name = sc.is.readUTF();
+                long size = sc.is.readLong();
+                fileSystem.add(id, name, size);
+                System.out.println(id + " " + name + " " + size);
             }
         }
     }
@@ -130,7 +134,7 @@ public class TorrentClient {
             sc.os.writeUTF(name);
             sc.os.writeLong(size);
             int id = sc.is.readInt();
-            fileSystem.addFull(id, path, size);
+            fileSystem.add(id, path, size);
             System.out.println("id=" + id);
             idToFileInfo.put(id, new FileInfo(name, size, path));
             try (BufferedWriter nw = new BufferedWriter(new FileWriter(seedFiles, true))) {
@@ -203,8 +207,11 @@ public class TorrentClient {
             sc.os.writeInt(Integer.parseInt(id));
             sc.os.flush();
             int count = sc.is.readInt();
+            System.out.println("Total " + count + " parts for id=" + id + ":");
             for (int i = 0; i < count; i++) {
-                System.out.print(sc.is.readInt() + " ");
+                int partNum = sc.is.readInt();
+                fileSystem.addPart(Integer.parseInt(id), partNum);
+                System.out.print(partNum + " ");
             }
             System.out.println();
         }
@@ -233,7 +240,6 @@ public class TorrentClient {
             sc.os.writeInt(Integer.parseInt(id));
             sc.os.writeInt(Integer.parseInt(partNum));
             sc.os.flush();
-            //IF FIRST TIME GETTING PART FOR THIS FILE - ADD IT TO FILESYSTEM
             long fileSize = fileSystem.getSize(Integer.parseInt(id));
             int numParts = (int)(Math.ceil(1.0*fileSize/fileSystem.getPartSize()));
             byte[] buf = (Integer.parseInt(partNum) + 1 < numParts) ? new byte[fileSystem.getPartSize()] : new byte[(int)(fileSize % fileSystem.getPartSize())];

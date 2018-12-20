@@ -8,8 +8,8 @@ import java.util.List;
 
 public class ClientCli {
     private static List<String> avaliableRequests = Arrays.asList("list", "upload", "sources", "update", "stat", "get");
-    void worker(short port) throws IOException {
-        TorrentClient torrentClient = new TorrentClient(port);
+    void worker(String ip, short port) throws IOException {
+        TorrentClient torrentClient = new TorrentClient(ip, port);
         BufferedReader is = new BufferedReader(new InputStreamReader(System.in));
         String cmd = "";
         while (is.ready() && !cmd.equals("exit")) {

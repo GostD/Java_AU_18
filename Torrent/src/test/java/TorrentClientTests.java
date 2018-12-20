@@ -9,7 +9,7 @@ public class TorrentClientTests {
         TorrentTracker tt = new TorrentTracker();
         Thread th1 = new Thread(tt::listener);
         th1.start();
-        TorrentClient tc = new TorrentClient((short)8082);
+        TorrentClient tc = new TorrentClient("localhost", (short)8082);
         Thread th2 = new Thread(tc::listener);
         th2.start();
         tt.close();
@@ -27,19 +27,18 @@ public class TorrentClientTests {
         TorrentTracker tt = new TorrentTracker();
         Thread th1 = new Thread(tt::listener);
         th1.start();
-        TorrentClient tc1 = new TorrentClient((short)8082);
+        TorrentClient tc1 = new TorrentClient("localhost", (short)8082);
         Thread th2 = new Thread(tc1::listener);
         th2.start();
 
-        TorrentClient tc2 = new TorrentClient((short)8083);
+        TorrentClient tc2 = new TorrentClient("localhost", (short)8083);
 
         try {
-            tc1.upload("src/main/java/Bethoven.flac");
+            tc1.upload("src/main/java/ClientCli.java");
             tc1.update();
-            tc2.stat("localhost", "8082", "86");
-            for (int i = 0; i < 35; i++) {
-                tc2.get("localhost", "8082", "86", "" + i);
-            }
+            tc2.list();
+            tc2.stat("localhost", "8082", "0");
+            tc2.get("localhost", "8082", "0", "0");
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -22,18 +22,15 @@ public class FileSystem {
         public boolean isFull;
         public Set<Integer> readyParts;
         public long size;
-//        public boolean[] markedParts;
     }
 
     private Map<Integer, RandomAccessFile> workingFiles;
     private Map<Integer, FileInfo> filesInfo;
-    private Map<Integer, boolean[]> markedParts;
     private Map<Integer, File> partFiles;
     private static int partSize = 10*1024*1024;
     FileSystem() {
         workingFiles = new HashMap<>();
         filesInfo = new HashMap<>();
-        markedParts = new HashMap<>();
         partFiles = new HashMap<>();
     }
 
@@ -41,6 +38,10 @@ public class FileSystem {
         for (RandomAccessFile fl : workingFiles.values()) {
             fl.close();
         }
+    }
+
+    public void addPart(int id, int partNum) {
+        filesInfo.get(id).readyParts.add(partNum);
     }
 
     public long getSize(int id) {
@@ -51,50 +52,23 @@ public class FileSystem {
 
     public int getPartsCount(int id) { return  (int)(Math.ceil(1.0*filesInfo.get(id).size/partSize)); }
 
-    void addFull(Integer id, String path, long size) throws IOException {
-        File fl = new File(path + ".part");
-        boolean created = false;
-        if (!fl.exists()) created = fl.createNewFile();
-//        if (!created) throw new IOException("Could not create .part file");
-        try (BufferedWriter fw = new BufferedWriter(new FileWriter(fl))) {
-            fw.write("1\n");
-            fw.flush();
-        }
-        add(id, path, size);
-
-    }
     void add(Integer id, String path, long size) {
         filesInfo.put(id, new FileInfo(path, size));
         partFiles.put(id, new File(path + ".part"));
         File parts = partFiles.get(id);
-        int partsCount = (int)Math.ceil(1.0*size/partSize);
-
+        boolean full = false;
+        if (!parts.exists()) full = true;
+//        int partsCount = (int)Math.ceil(1.0*size/partSize);
         try {
-            boolean created = false;
-            if (!parts.exists()) {
-                created = parts.createNewFile();
-                if (!created) throw new IOException();
-                try (BufferedWriter os = new BufferedWriter(new FileWriter(parts))) {
-                    os.write("0\n");
-                    os.flush();
-                }
-            }
-            else {
-                BufferedReader is = new BufferedReader(new FileReader(parts));
-                boolean full = Integer.parseInt(is.readLine()) == 1;
-                FileInfo fileInfForId = filesInfo.get(id);
-                fileInfForId.isFull = full;
+                filesInfo.get(id).isFull = full;
                 if (!full) {
-                    markedParts.put(id, new boolean[partsCount]);
-                    boolean[] marks = markedParts.get(id);
-                    while (is.ready()) {
-                        int cur = Integer.parseInt(is.readLine());
-                        marks[cur] = true;
-                        fileInfForId.readyParts.add(cur);
+                    try (BufferedReader is = new BufferedReader(new FileReader(parts))) {
+                        while (is.ready()) {
+                            int cur = Integer.parseInt(is.readLine());
+                            filesInfo.get(id).readyParts.add(cur);
+                        }
                     }
                 }
-                is.close();
-            }
 
         } catch (FileNotFoundException e) {
             System.out.println("Could not find part file");
@@ -127,36 +101,34 @@ public class FileSystem {
             if (!workingFiles.containsKey(id)) {
                 String[] fullName = filesInfo.get(id).path.split("/");
                 getFileName = fullName[fullName.length - 1];
-                workingFiles.put(id,new RandomAccessFile(getFileName, "rw"));//check valid id
+                workingFiles.put(id,new RandomAccessFile(getFileName, "rw"));
             }
             RandomAccessFile raf = workingFiles.get(id);
-            File partGetFile = new File(getFileName + ".part");
-            if (!partGetFile.exists()) {
-                partGetFile.createNewFile();
-                FileWriter os = new FileWriter(partGetFile);
-                os.write("0\n");
-                os.close();
-            }
+
             FileChannel fc = raf.getChannel();
             fc.write(ByteBuffer.wrap(buf), partNum * partSize);
             filesInfo.get(id).readyParts.add(partNum);
+            File partGetFile = new File(getFileName + ".part");
             if (getAllParts(id).size() == getPartsCount(id) || isFull(id)) {
-                try (BufferedWriter os = new BufferedWriter(new FileWriter(partGetFile))) {
-                    os.write("1\n");
+                if (partGetFile.exists()) {
+                    partGetFile.delete();
                 }
             } else {
+                if (!partGetFile.exists() && isFull(id)) {
+                    partGetFile.createNewFile();
+                }
                 try (BufferedWriter os = new BufferedWriter(new FileWriter(partGetFile, true))) {
                     os.write(partNum + "\n");
                 }
             }
+
+
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-//    String getName(int id) {
-//        return idToPath.get(id);
-//    }
     boolean isFull(int id) { return filesInfo.get(id).isFull; }
     Set<Integer> getAllParts(int id) {
         return filesInfo.get(id).readyParts;
