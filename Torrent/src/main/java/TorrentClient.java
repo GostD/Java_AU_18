@@ -16,7 +16,7 @@ public class TorrentClient {
     private ExecutorService threadPool;
     private FileSystem fileSystem;
 
-    TorrentClient(String serverAddress, short port) {
+    public TorrentClient(String serverAddress, short port) {
         this.port = port;
         try {
             servSc = new ServerSocket(port);
@@ -55,11 +55,11 @@ public class TorrentClient {
         }
         this.serverAddress = serverAddress;
         threadPool = Executors.newSingleThreadExecutor();
-//        try {
-//            update();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            update();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void close() {
@@ -100,7 +100,6 @@ public class TorrentClient {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                e.printStackTrace();
                 close();
                 break;
             }
@@ -118,7 +117,8 @@ public class TorrentClient {
                 int id = sc.is.readInt();
                 String name = sc.is.readUTF();
                 long size = sc.is.readLong();
-                fileSystem.add(id, name, size);
+                if (!fileSystem.contains(id))
+                    fileSystem.add(id, name, size);
                 System.out.println(id + " " + name + " " + size);
             }
         }
@@ -146,6 +146,8 @@ public class TorrentClient {
 
     public void sources(String id) throws IOException {
         try (SocketInfo sc = new SocketInfo(new Socket(serverAddress, 8081))) {
+            sc.os.writeByte(3);
+            sc.os.flush();
             sc.os.writeInt(Integer.parseInt(id));
             sc.os.flush();
             int count = sc.is.readInt();
@@ -154,7 +156,9 @@ public class TorrentClient {
             for (int i = 0; i < count; i++) {
                 byte[] ip = new byte[4];
                 sc.is.readFully(ip);
-                System.out.println(ip[0] + "." + ip[1] + "." + ip[2] + "." + ip[3] + "   " + sc.is.readShort());
+                String ipStr = "" + (ip[0] < 0 ? ip[0] + 256 : ip[0]);
+                for (int j = 0; j < 3; j++) ipStr += "." + (ip[j+1] < 0 ? ip[j+1] + 256 : ip[j+1]);
+                System.out.println(ipStr + "   " + sc.is.readShort());
             }
 
 
@@ -170,7 +174,8 @@ public class TorrentClient {
                 sc.os.writeInt(id);
             }
             sc.os.flush();
-            if (!sc.is.readBoolean()) throw new IOException("Could not update seeds info");
+            boolean updated = sc.is.readBoolean();
+            System.out.println(updated ? "updated" : "could not update");
         }
     }
 
@@ -210,7 +215,6 @@ public class TorrentClient {
             System.out.println("Total " + count + " parts for id=" + id + ":");
             for (int i = 0; i < count; i++) {
                 int partNum = sc.is.readInt();
-                fileSystem.addPart(Integer.parseInt(id), partNum);
                 System.out.print(partNum + " ");
             }
             System.out.println();
@@ -230,8 +234,11 @@ public class TorrentClient {
         }
     }
 
-//    public void get(String ip, String port, String id)//get whole file by id, ip, port
-//    public void get(String id)//get whole file by id
+    public void get(String ip, String port, String id, String partFrom, String partTo) throws IOException {
+        for (int i = Integer.parseInt(partFrom); i <= Integer.parseInt(partTo); i++) {
+            get(ip, port, id, "" + i);
+        }
+    }
 
     public void get(String ip, String port, String id, String partNum) throws IOException {
         try (SocketInfo sc = new SocketInfo(new Socket(ip, Short.parseShort(port)))) {
@@ -245,19 +252,27 @@ public class TorrentClient {
             byte[] buf = (Integer.parseInt(partNum) + 1 < numParts) ? new byte[fileSystem.getPartSize()] : new byte[(int)(fileSize % fileSystem.getPartSize())];
             sc.is.readFully(buf);
             fileSystem.writeBytes(Integer.parseInt(id), Integer.parseInt(partNum), buf);
+            if (!idToFileInfo.containsKey(Integer.parseInt(id))) {
+                String path = fileSystem.getPath(Integer.parseInt(id));
+                idToFileInfo.put(Integer.parseInt(id), new FileInfo(path, fileSize, path));
+                try (FileWriter fw = new FileWriter(seedFiles, true)) {
+                    fw.write(id + " " + path + " " + fileSize + " " + path + "\n");
+                    fw.flush();
+                }
+            }
 
         }
     }
 
     private static class FileInfo {
-        public FileInfo(String name, long size, String path) {
+        private FileInfo(String name, long size, String path) {
             this.name = name;
             this.size = size;
             this.path = path;
         }
-        public String name;
-        public Long size;
-        public String path;
+        private String name;
+        private Long size;
+        private String path;
 
     }
 

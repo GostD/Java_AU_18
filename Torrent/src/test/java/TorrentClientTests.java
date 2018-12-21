@@ -37,7 +37,7 @@ public class TorrentClientTests {
             tc1.upload("src/main/java/ClientCli.java");
             tc1.update();
             tc2.list();
-            tc2.stat("localhost", "8082", "0");
+            tc2.stat("localhost", "8082", "0");//Can be not valid file if TorrentTrackerTests runs first
             tc2.get("localhost", "8082", "0", "0");
         } catch (IOException e) {
             e.printStackTrace();

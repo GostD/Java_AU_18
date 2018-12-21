@@ -5,25 +5,6 @@ import java.util.*;
 
 public class FileSystem {
 
-    private static class FileInfo {
-        FileInfo(String path, long size) {
-            this.path = path;
-            this.size = size;
-            isFull = false;
-            readyParts = new HashSet<>();
-        }
-        FileInfo(String path, long size, boolean isFull) {
-            this.path = path;
-            this.size = size;
-            this.isFull = isFull;
-            readyParts = new HashSet<>();
-        }
-        public String path;
-        public boolean isFull;
-        public Set<Integer> readyParts;
-        public long size;
-    }
-
     private Map<Integer, RandomAccessFile> workingFiles;
     private Map<Integer, FileInfo> filesInfo;
     private Map<Integer, File> partFiles;
@@ -44,6 +25,10 @@ public class FileSystem {
         filesInfo.get(id).readyParts.add(partNum);
     }
 
+    public boolean contains(int id) {
+        return filesInfo.containsKey(id);
+    }
+
     public long getSize(int id) {
         return filesInfo.get(id).size;
     }
@@ -56,12 +41,12 @@ public class FileSystem {
         filesInfo.put(id, new FileInfo(path, size));
         partFiles.put(id, new File(path + ".part"));
         File parts = partFiles.get(id);
+        File fl = new File(path);
         boolean full = false;
-        if (!parts.exists()) full = true;
-//        int partsCount = (int)Math.ceil(1.0*size/partSize);
+        if (!parts.exists() && fl.exists()) full = true;
         try {
                 filesInfo.get(id).isFull = full;
-                if (!full) {
+                if (!full && parts.exists()) {
                     try (BufferedReader is = new BufferedReader(new FileReader(parts))) {
                         while (is.ready()) {
                             int cur = Integer.parseInt(is.readLine());
@@ -108,17 +93,18 @@ public class FileSystem {
             FileChannel fc = raf.getChannel();
             fc.write(ByteBuffer.wrap(buf), partNum * partSize);
             filesInfo.get(id).readyParts.add(partNum);
-            File partGetFile = new File(getFileName + ".part");
+            File partGetFile = partFiles.get(id);
             if (getAllParts(id).size() == getPartsCount(id) || isFull(id)) {
                 if (partGetFile.exists()) {
                     partGetFile.delete();
                 }
             } else {
-                if (!partGetFile.exists() && isFull(id)) {
+                if (!partGetFile.exists() && !isFull(id)) {
                     partGetFile.createNewFile();
                 }
-                try (BufferedWriter os = new BufferedWriter(new FileWriter(partGetFile, true))) {
+                try (FileWriter os = new FileWriter(partGetFile, true)) {
                     os.write(partNum + "\n");
+                    os.flush();
                 }
             }
 
@@ -129,8 +115,32 @@ public class FileSystem {
         }
     }
 
-    boolean isFull(int id) { return filesInfo.get(id).isFull; }
-    Set<Integer> getAllParts(int id) {
+    public String getPath(int id) {
+        return filesInfo.get(id).path;
+    }
+
+    public boolean isFull(int id) { return filesInfo.get(id).isFull; }
+    public Set<Integer> getAllParts(int id) {
         return filesInfo.get(id).readyParts;
+    }
+
+
+    private static class FileInfo {
+        private FileInfo(String path, long size) {
+            this.path = path;
+            this.size = size;
+            isFull = false;
+            readyParts = new HashSet<>();
+        }
+        private FileInfo(String path, long size, boolean isFull) {
+            this.path = path;
+            this.size = size;
+            this.isFull = isFull;
+            readyParts = new HashSet<>();
+        }
+        private String path;
+        private boolean isFull;
+        private Set<Integer> readyParts;
+        private long size;
     }
 }

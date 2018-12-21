@@ -163,6 +163,7 @@ public class TorrentTracker {
             Deque<TimeStampedClient> clients = metaInfo.clients.get(fId);
             while (!clients.isEmpty() && (curDate.getTime() - clients.getFirst().timeStamp.getTime()) > 300000) clients.pollFirst();
             sc.os.writeInt(clients.size());
+            sc.os.flush();
             for (TimeStampedClient client : clients) {
                 sc.os.write(client.address.ip);
                 sc.os.writeShort(client.address.port);
@@ -170,7 +171,7 @@ public class TorrentTracker {
             sc.os.flush();
     }
 
-    public void update(SocketInfo sc) throws IOException {//change to private
+    public void update(SocketInfo sc) throws IOException {
         byte[] clIp = sc.socket.getInetAddress().getAddress();
         if (clIp.length != 4) {
             throw new IOException("Wrong ip address of client");
@@ -241,83 +242,14 @@ public class TorrentTracker {
         public Map<Integer, FileInfo> files;
     }
 
-//    public static void main(String[] args) throws IOException, InterruptedException {
-//        TorrentTracker tt = new TorrentTracker();
-//        Thread th = new Thread(tt::listener);
-//        th.start();
-////        tt.addFile("f1", 123L);
-////        tt.addFile("f2", 126L);
-//        Socket cli = new Socket("localhost", 8081);
-//        if (cli.isConnected()) System.out.println("Alive");
-//        DataOutputStream os = new DataOutputStream(cli.getOutputStream());
-////        BufferedReader brSc = new BufferedReader(new InputStreamReader(cli.getInputStream()));
-//        os.writeByte(4);
-//        os.flush();
-//        os.writeShort(8808);
-//        os.writeInt(2);
-//        os.writeInt(1);
-//        os.writeInt(5);
-//        os.flush();
-////        os.writeByte(2);
-////        os.flush();
-////        os.writeUTF("name1");
-////        os.writeLong(123L);
-////        os.flush();
-//
-////        os.close();
-////        cli.close();
-//
-////        Thread.sleep(20);
-//        Socket cli1 = new Socket("localhost", 8081);
-//        if (cli1.isConnected()) System.out.println("Alive");
-//        DataOutputStream os1 = new DataOutputStream(cli1.getOutputStream());
-//        DataInputStream is1 = new DataInputStream(cli1.getInputStream());
-////        BufferedReader brSc1 = new BufferedReader(new InputStreamReader(cli1.getInputStream()));
-//        os1.writeByte(3);
-//        os1.writeInt(5);
-//        os1.flush();
-//
-////        os.flush();
-////        os.writeUTF("name1");
-////        os.writeLong(123L);
-////        os.flush();
-//
-////        os.writeByte(2);
-////        os.flush();
-////        os.writeUTF("name2");
-////        os.writeLong(125L);
-////        os.flush();
-////        os.writeByte(1);
-//
-////        while (!request.equals("exit")) {
-////            os.write((request).getBytes());
-////            os.flush();
-//////            os.close();
-////
-//
-////        Thread.sleep(3);
-//
-//
-//
-//        int count = is1.readInt();
-//        for (int i = 0; i < count; i++) {
-//            System.out.println(is1.readByte() + "." + is1.readByte() + "." + is1.readByte() + "." + is1.readByte() + ":" + is1.readShort());
-//        }
-////        for (int i = 0; i < count; i++) {
-////            System.out.println("id: " + is1.readInt() + " name: " + is1.readUTF() + " size: " + is1.readLong());
-////        }
-////            while (brSc1.ready()) {
-////                System.out.println(brSc1.readLine());
-////            }
-////            request = br.readLine();
-////        }
-//        os.close();
-//        cli.close();
-//        os1.close();
-////        brSc1.close();
-//        cli1.close();
-//        th.interrupt();
-//        System.exit(0);
-//
-//    }
+    public static void main(String[] args) {
+        TorrentTracker tt = new TorrentTracker();
+        Thread th = new Thread(tt::listener);
+        th.start();
+        try {
+            th.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

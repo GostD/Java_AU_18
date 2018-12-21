@@ -83,7 +83,6 @@ public class TorrentTrackerTests {
 
         tt.close();
         try {
-//            th.interrupt();
             th.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -168,7 +167,6 @@ public class TorrentTrackerTests {
         }
         tt.close();
         try {
-//            th.interrupt();
             th.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
