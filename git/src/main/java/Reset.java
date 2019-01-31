@@ -1,14 +1,13 @@
 import java.io.IOException;
 
-public class Add extends Command {
-    public Add(String[] args) {
+public class Reset extends Command {
+    public Reset(String[] args) {
         arguments = args;
     }
     public void execute() {
         try {
             FileSystem fs = new FileSystem();
-            fs.add(arguments);
-            System.out.println(arguments.length);
+            fs.reset(arguments[1]);
         } catch (IOException e) {
             e.printStackTrace();
         }

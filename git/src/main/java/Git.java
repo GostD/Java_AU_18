@@ -3,7 +3,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Git {
-    private static List<String> availableCommands = Arrays.asList("init", "commit", "reset", "log", "checkout", "add", "rm", "status");
+    private static List<String> availableCommands = Arrays.asList("init", "commit", "reset", "log", "checkout", "add", "rm", "status", "branch", "merge");
 
     public static void main(String[] args) {
 
