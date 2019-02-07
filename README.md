@@ -1,1 +1,10 @@
 # Java_AU_18
+![](/pics/SingThVarN.png)
+![](/pics/SingThVarM.png)
+![](/pics/SingThVarDelta.png)
+![](/pics/thPVarN.png)
+![](/pics/thPVarM.png)
+![](/pics/thPVarDelta.png)
+![](/pics/SelectorVarN.png)
+![](/pics/SelectorVarM.png)
+![](/pics/SelectorVarDelta.png)
