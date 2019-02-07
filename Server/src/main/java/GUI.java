@@ -1,9 +1,4 @@
-import org.omg.CORBA.INTERNAL;
-
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,7 +27,6 @@ public class GUI extends JFrame  {
 
             content = getContentPane();
             content.setLayout(null);
-//                getContentPane().setBackground(Color.magenta);
 
             JLabel label = new JLabel("Architecture type:");
             label.setBounds(20, 20, 140, 30);
@@ -132,7 +126,6 @@ public class GUI extends JFrame  {
                 field4.setText("");
                 field5.setBounds(320, 300, 70,20);
                 field5.setText("");
-//                content.repaint();
             });
             choice2.addActionListener(actionEvent -> {
                 value1.setBounds(rec1);
@@ -149,8 +142,6 @@ public class GUI extends JFrame  {
                 field4.setText("");
                 field5.setBounds(320, 300, 70,20);
                 field5.setText("");
-
-//                content.repaint();
             });
             choice3.addActionListener(actionEvent -> {
                 value1.setBounds(rec1);
@@ -169,7 +160,6 @@ public class GUI extends JFrame  {
                 field4.setText("");
                 field5.setBounds(320, 320, 70,20);
                 field5.setText("");
-//                content.repaint();
             });
 
             JLabel ip = new JLabel("Address:");
@@ -205,7 +195,7 @@ public class GUI extends JFrame  {
             readToWrite.setBounds(520, 225, 200, 20);
             content.add(readToWrite);
 
-            JLabel timeClient = new JLabel("Server read/write time");
+            JLabel timeClient = new JLabel("Client read/write time");
             timeClient.setBounds(520, 445, 200, 20);
             content.add(timeClient);
 
@@ -221,6 +211,19 @@ public class GUI extends JFrame  {
                 int variableParameter = varNumElem ? numElem : (varCliNum ? cliNum : deltaTime);
                 int variableStep = Integer.parseInt(varNumElem ? field3.getText() : (varCliNum ? field4.getText() : field5.getText()));
                 int variableLimit = Integer.parseInt(varNumElem ? field2.getText() : (varCliNum ? field3.getText() : field4.getText()));
+                File sLogs = new File("sortLogFile" + System.currentTimeMillis());
+                File rwLogs = new File("readToWriteLogFile" + System.currentTimeMillis());
+                File clLogs = new File("clientTimeLogFile" + System.currentTimeMillis());
+                try (FileWriter fwS = new FileWriter(sLogs); FileWriter fwR = new FileWriter(rwLogs); FileWriter fwC = new FileWriter(clLogs)) {
+                    String paramStr = "architecture: " + comboBox.getSelectedItem() + " X=" + queryPerClient + " variable: " +
+                            (varNumElem ? "N" : (varCliNum ? "M" : "Delta")) + ": [" + variableParameter + ", " + variableStep + ", " + variableLimit + "]" +
+                            (!varNumElem ? (" N=" + numElem) : "") + (!varCliNum ? (" M=" + cliNum) : "") + (!varDelta ? (" Delta=" + deltaTime) : "");
+                    fwS.write(paramStr);
+                    fwR.write(paramStr);
+                    fwC.write(paramStr);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 int[] valX = new int[(variableLimit - variableParameter) / variableStep + 1];
 
                 int[] valSort = new int[(variableLimit - variableParameter) / variableStep + 1];
@@ -278,6 +281,16 @@ public class GUI extends JFrame  {
                 canvas3.setBounds(400, 450, 400, 201);
                 content.add(canvas3);
 
+                try (FileWriter fwS = new FileWriter(sLogs, true); FileWriter fwR = new FileWriter(rwLogs, true); FileWriter fwC = new FileWriter(clLogs, true)) {
+                    for (int i = 0; i < valX.length; ++i) {
+                        fwS.write("\n" + valX[i] + " " + valSort[i]);
+                        fwR.write("\n" + valX[i] + " " + valRead[i]);
+                        fwC.write("\n" + valX[i] + " " + valClient[i]);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 if (!graphics.isEmpty()) {
                     for (DrawCanvas canv : graphics) {
                         content.remove(canv);
@@ -329,23 +342,6 @@ public class GUI extends JFrame  {
                 g.drawLine(xVals[i] * 400 / maxX, 200 - yVals[i] * 200 / maxY,
                           xVals[i + 1] * 400 / maxX, 200 - yVals[i + 1] * 200 / maxY);
             }
-//            g.drawLine(0, 200, 100, 100);
-//            g.drawLine(100, 100, 200, 50);
-//            g.drawLine(200, 50, 300, 70);
-//            g.drawLine(300, 70, 400, 0);
-
-
-//            g.setColor(Color.DARK_GRAY);
-//            g.drawString();
-
-//            g.drawOval(150, 180, 10, 10);
-//            g.drawRect(200, 210, 20, 30);
-//            g.setColor(Color.RED);
-//            g.fillOval(300, 310, 30, 50);
-//            g.fillRect(400, 350, 60, 50);
-//            g.setColor(Color.WHITE);
-//            g.setFont(new Font("Monospaced", Font.PLAIN, 12));
-//            g.drawString("Testing custom drawing ...", 10, 20);
         }
     }
 

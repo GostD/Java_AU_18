@@ -2,49 +2,43 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class SelectorsThPool implements Server {
     private int messageNum;
     private int clientsCount;
-
-    public SelectorsThPool() {
-        new SingleThreadForEvery(1, 1);
-    }
+    private static ServerSocketChannel servScCh;
 
     public SelectorsThPool(int messageNum, int clientsCount) {
         this.messageNum = messageNum;
         this.clientsCount = clientsCount;
-    }
-
-    public void worker(ServerSocket servSc) {
-        ServerSocketChannel servScCh = null;
         try {
-            servSc.close();
             servScCh = ServerSocketChannel.open().bind(new InetSocketAddress(8081));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void worker() {
         Map<SocketChannel, ByteBuffer> sizeBuffs = new HashMap<>();
         Map<SocketChannel, ByteBuffer> dataBuffs = new HashMap<>();
+        Map<SocketChannel, Long> beforeReadTime = new HashMap<>();
         try {
+            AtomicLong avgSortTime = new AtomicLong(0);
+            AtomicLong avgReadToWrite = new AtomicLong(0);
             Selector readSelector = Selector.open();
             Selector writeSelector = Selector.open();
             Map<SocketChannel, ByteBuffer> channelToByteBuffer = new HashMap<>();
-            ExecutorService thP = Executors.newFixedThreadPool(4);
+            ExecutorService thP = Executors.newFixedThreadPool(12);
 
             Thread th1 = new Thread(() -> {
-//                ByteBuffer size = ByteBuffer.allocate(4);
-//                ByteBuffer array = ByteBuffer.allocate(1);
-                while (true) {//!Thread.interrupted();
+                int count = 0;
+                while (count < clientsCount * messageNum) {
                     try {
                         if (readSelector.select() == 0) continue;
                     } catch (IOException e) {
@@ -56,23 +50,29 @@ public class SelectorsThPool implements Server {
                         SelectionKey key = keyIterator.next();
                         if (key.isReadable()) {
                             final SocketChannel ch = (SocketChannel) key.channel();
-                            ByteBuffer size = sizeBuffs.get(ch);
+                            ByteBuffer size = sizeBuffs.getOrDefault(ch, null);
                             ByteBuffer array = dataBuffs.get(ch);
-                            boolean noSize = size.hasRemaining();
+                            boolean noSize = size != null && size.hasRemaining();
                             try {
-                                if (size.hasRemaining()) {
+                                if (size != null && size.hasRemaining()) {
                                     ch.read(size);
                                 } else if (array.hasRemaining()) {
                                     ch.read(array);
                                 }
                             } catch (IOException e) {
                             }
-                            if (!size.hasRemaining() && noSize) {
+                            if (size != null && !size.hasRemaining() && noSize) {
                                 size.flip();
                                 int arraySize = size.getInt();
-                                array = ByteBuffer.allocate(arraySize);
+                                sizeBuffs.remove(ch);
+                                dataBuffs.remove(ch);
+                                dataBuffs.put(ch, ByteBuffer.allocate(arraySize));
                             }
                             if (!array.hasRemaining()) {
+                                synchronized (beforeReadTime) {
+                                    if (!beforeReadTime.containsKey(ch))
+                                        beforeReadTime.put(ch, System.currentTimeMillis());
+                                }
                                 array.flip();
                                 try {
                                     final MessageProtoc.Arr message = MessageProtoc.Arr.parseFrom(array.array());
@@ -81,8 +81,15 @@ public class SelectorsThPool implements Server {
                                     for (int i = 0; i < arrSize; i++) {
                                         arr[i] = message.getData(i);
                                     }
+
                                     thP.execute(() -> {
+                                        long startSort = System.currentTimeMillis();
                                         Utils.sort(arr);
+                                        long finishSort = System.currentTimeMillis();
+                                        long curSort = avgSortTime.get();
+                                        while (!avgSortTime.compareAndSet(curSort, curSort + finishSort - startSort))
+                                            curSort = avgSortTime.get();
+
                                         MessageProtoc.Arr.Builder ansMessageBuilder = MessageProtoc.Arr.newBuilder()
                                                 .setNum(arrSize);
                                         for (int i = 0; i < arrSize; i++) {
@@ -101,21 +108,19 @@ public class SelectorsThPool implements Server {
                                         ByteBuffer ansBuff = ByteBuffer.allocate(ansMessage.getSerializedSize());
                                         ansBuff.put(ansMessage.toByteArray());
                                         ansBuff.flip();
-                                        channelToByteBuffer.put(ch, ansBuff);
-                                        try {
-                                            ch.register(writeSelector, SelectionKey.OP_WRITE);
-                                        } catch (IOException e) {
-                                            System.out.println("Register channel to write failed");
-//                                            e.printStackTrace();
+                                        synchronized (channelToByteBuffer) {
+                                            channelToByteBuffer.put(ch, ansBuff);
                                         }
 
                                     });
                                 } catch (InvalidProtocolBufferException e) {
                                     System.out.println("Could not read message");
-//                                    e.printStackTrace();
+                                    e.printStackTrace();
                                 }
-                                size.clear();
+                                if (size == null) sizeBuffs.put(ch, ByteBuffer.allocate(4));
                                 array.clear();
+                                count++;
+
                             }
                         }
                         keyIterator.remove();
@@ -123,7 +128,8 @@ public class SelectorsThPool implements Server {
                 }
             });
             Thread th2 = new Thread(() -> {
-                while (true) {
+                int count = 0;
+                while (count < clientsCount * messageNum) {
                     try {
                         if (writeSelector.select() == 0) continue;
                     } catch (IOException e) {
@@ -135,16 +141,35 @@ public class SelectorsThPool implements Server {
                         SelectionKey key = keyIterator.next();
                         if (key.isWritable()) {
                             SocketChannel ch = (SocketChannel) key.channel();
-                            ByteBuffer buff = channelToByteBuffer.get(ch);
+                            boolean contains = false;
+                            ByteBuffer buff = ByteBuffer.allocate(1);
+                            synchronized (channelToByteBuffer) {
+                                contains = channelToByteBuffer.containsKey(ch);
+                                if (contains) buff = channelToByteBuffer.get(ch);
+                            }
+                            if (!contains) {
+                                keyIterator.remove();
+                                continue;
+                            }
+
                             try {
                                 ch.write(buff);
                                 if (!buff.hasRemaining()) {
-                                    key.cancel();
-                                    channelToByteBuffer.remove(ch);
+                                    long afterWrite = System.currentTimeMillis();
+                                    long curRead = avgReadToWrite.get();
+                                    synchronized (beforeReadTime) {
+                                        while (!avgReadToWrite.compareAndSet(curRead, curRead + afterWrite - beforeReadTime.get(ch)))
+                                            curRead = avgReadToWrite.get();
+                                    }
+                                    beforeReadTime.remove(ch);
+                                    count++;
+                                    synchronized (channelToByteBuffer) {
+                                        channelToByteBuffer.remove(ch);
+                                    }
                                 }
+
                             } catch (IOException e) {
                                 System.out.println("Write to buffer fails");
-//                            e.printStackTrace();
                             }
                         }
                         keyIterator.remove();
@@ -152,29 +177,44 @@ public class SelectorsThPool implements Server {
                 }
             });
 
-            try {//(ServerSocketChannel servScCh = servSc.getChannel())
+            List<SocketChannel> sCh = new ArrayList<>();
+
+            try {
                 for (int k = 0; k < clientsCount; k++) {
                     SocketChannel sc = servScCh.accept();
                     sc.configureBlocking(false);
                     sizeBuffs.put(sc, ByteBuffer.allocate(4));
                     dataBuffs.put(sc, ByteBuffer.allocate(1));
+                    sCh.add(sc);
                     sc.register(readSelector, SelectionKey.OP_READ);
+                    sc.register(writeSelector, SelectionKey.OP_WRITE);
                 }
                 th1.start();
                 th2.start();
                 th1.join();
                 th2.join();
+                int avgSortRes = (int)(avgSortTime.get() / (clientsCount * messageNum));
+                int avgReadWriteRes = (int)(avgReadToWrite.get() / (clientsCount * messageNum));
+                for (SocketChannel sc : sCh) {
+                    ByteBuffer avgS = ByteBuffer.allocate(4).putInt(avgSortRes);
+                    avgS.flip();
+                    while (avgS.hasRemaining()) sc.write(avgS);
+                    ByteBuffer avgReadWrite = ByteBuffer.allocate(4).putInt(avgReadWriteRes);
+                    avgReadWrite.flip();
+                    while (avgReadWrite.hasRemaining()) sc.write(avgReadWrite);
+                }
 
             } catch (IOException e) {
                 System.out.println("Server socket fail");
-    //            e.printStackTrace();
+                e.printStackTrace();
             } catch (InterruptedException e) {
                 System.out.println("Could not join selector thread");
-//                e.printStackTrace();
+                e.printStackTrace();
             }
+            servScCh.close();
         } catch (IOException e) {
             System.out.println("Selector open fails");
-//            e.printStackTrace();
+            e.printStackTrace();
         }
     }
 }

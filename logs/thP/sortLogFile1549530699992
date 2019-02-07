@@ -1,0 +1,11 @@
+architecture: Thread read, singleThreadPoolExecutor write, ThreadPool X=8 variable: N: [2000, 2000, 20000] M=8 Delta=5
+2000 6
+4000 23
+6000 45
+8000 82
+10000 146
+12000 217
+14000 304
+16000 428
+18000 531
+20000 697

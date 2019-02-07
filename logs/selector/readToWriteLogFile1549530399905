@@ -1,0 +1,12 @@
+architecture: Selector read/write, ThreadPool X=8 variable: M: [5, 10, 105] N=10000 Delta=5
+5 132
+15 219
+25 250
+35 435
+45 381
+55 835
+65 938
+75 1154
+85 1297
+95 1377
+105 1260

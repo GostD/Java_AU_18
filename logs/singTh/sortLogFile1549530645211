@@ -1,0 +1,11 @@
+architecture: Single thread for every client X=8 variable: N: [2000, 2000, 20000] M=8 Delta=5
+2000 9
+4000 20
+6000 42
+8000 82
+10000 137
+12000 208
+14000 305
+16000 394
+18000 519
+20000 699
